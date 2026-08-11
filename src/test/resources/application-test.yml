@@ -1,0 +1,22 @@
+# Perfil de tests de integracion.
+#
+# No define spring.datasource.*: la URL, usuario y password los inyecta Testcontainers
+# en tiempo de ejecucion mediante @ServiceConnection (ver AbstractIntegrationTest).
+# Fijarlos aqui a mano seria un error: cada contenedor levanta en un puerto aleatorio.
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop   # esquema limpio por cada contenedor
+    show-sql: false
+    open-in-view: false
+
+jwt:
+  secret: dGVzdC1zZWNyZXQtc29sby1wYXJhLXRlc3RzLTEyMzQ1Njc4OTAxMjM0NTY=
+  expiracion-min: 5
+  emisor: gastos-compartidos-test
+
+logging:
+  level:
+    com.gastoscompartidos: DEBUG
+    org.testcontainers: INFO

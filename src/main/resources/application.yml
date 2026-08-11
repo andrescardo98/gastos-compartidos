@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: gastos-compartidos
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/gastos_compartidos
+    username: gastos_user
+    password: gastos_pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      # 'update' es comodo para aprender, pero no gestiona migraciones ni borra columnas.
+      # Antes de que esto vea datos reales: pasar a 'validate' + Flyway o Liquibase.
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          # Agrupa los INSERT de las divisiones de un gasto en un solo round-trip.
+          batch_size: 25
+    open-in-view: false   # evita consultas lazy fuera de la transaccion, en la capa web
+    show-sql: true
+
+  devtools:
+    restart:
+      enabled: true
+
+server:
+  port: 8080
+  error:
+    include-stacktrace: never   # el stacktrace nunca sale en la respuesta HTTP
+
+jwt:
+  # Clave SOLO de desarrollo. En cualquier entorno real inyectar JWT_SECRET por
+  # variable de entorno. Debe ser Base64 y tener >= 32 bytes decodificados (HS256).
+  secret: ${JWT_SECRET:ZGVzYXJyb2xsby1zb2xvLWNhbWJpYXItZW4tcHJvZHVjY2lvbi0xMjM0NTY3ODkw}
+  expiracion-min: 60
+  emisor: gastos-compartidos
+
+logging:
+  level:
+    com.gastoscompartidos: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE   # muestra los valores de los parametros '?'
