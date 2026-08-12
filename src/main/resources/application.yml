@@ -3,7 +3,7 @@ spring:
     name: gastos-compartidos
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/gastos_compartidos
+    url: jdbc:postgresql://localhost:5435/gastos_compartidos
     username: gastos_user
     password: gastos_pass
     driver-class-name: org.postgresql.Driver

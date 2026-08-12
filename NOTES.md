@@ -1,26 +1,91 @@
 # Notas de trabajo
 
-Última actualización: 2026-08-10
+Última actualización: 2026-08-11
 
 ---
 
 ## Dónde quedamos
 
 El esqueleto del proyecto está **completo y commiteado** (`6f757f1` en `main`, sin push).
-`mvn clean test` pasa en verde. Lo que **no** arranca es la aplicación: falla al conectar
-con PostgreSQL por un conflicto de puertos en la máquina de desarrollo.
+`mvn clean test` pasa en verde. **El conflicto de puertos está resuelto**: el proyecto usa
+ahora el **5435** y la aplicación arranca y sirve peticiones.
 
 | Cosa | Estado |
 |---|---|
 | Estructura hexagonal (domain / application / infrastructure) | ✅ completa, con TODOs |
 | `mvn clean test` | ✅ BUILD SUCCESS — 13 tests, 13 skipped (`@Disabled`) |
 | Documentación (`docs/architecture.md`, ADR 0001) | ✅ escrita |
-| Arranque de la aplicación (`mvn spring-boot:run`) | ❌ falla — ver abajo |
+| Arranque de la aplicación (`mvn spring-boot:run`) | ✅ verificado en 5435 — ver abajo |
 | Lógica de negocio | ⬜ sin implementar, a propósito |
 
 ---
 
-## El problema: conflicto en el puerto 5433
+## RESUELTO — puerto final: 5435
+
+Aplicado el 2026-08-11. Comprobado que **5434-5440 estaban todos libres**, se eligió el
+**5435** (el que ya proponía el plan).
+
+Cambios:
+
+- `docker-compose.yml`: mapeo `5433:5432` → **`5435:5432`**
+- `src/main/resources/application.yml`: datasource → `jdbc:postgresql://localhost:5435/gastos_compartidos`
+- `src/test/resources/application-test.yml`: **sin tocar** (Testcontainers, puerto aleatorio)
+
+Antes de aplicarlo, el 5433 tenía **dos** listeners simultáneos, que es exactamente el
+síntoma del conflicto:
+
+```
+5433 -> com.docker.backend (PID 38712)
+5433 -> postgres           (PID 6720)   <- el nativo, el que ganaba
+```
+
+Tras `docker compose down && docker compose up -d`, en el 5435 solo escucha Docker
+(`wslrelay` + `com.docker.backend`, sin `postgres` nativo), el contenedor queda `healthy`
+con `0.0.0.0:5435->5432/tcp`, y el host responde desde el contenedor correcto:
+
+```
+gastos_user|16.14      # 16.x = contenedor. Si saliera 12.x, seguiría contestando el nativo
+```
+
+> Nota: `psql` no está en el PATH del host. Para comprobarlo desde fuera del contenedor:
+> ```powershell
+> docker run --rm postgres:16-alpine psql "postgresql://gastos_user:gastos_pass@host.docker.internal:5435/gastos_compartidos" -tAc "select current_user, split_part(version(),' ',2)"
+> ```
+
+### Arranque verificado (no por exit code, por log)
+
+`mvn spring-boot:run` — líneas relevantes:
+
+```
+HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1982f6e4
+HikariPool-1 - Start completed.
+HHH10001005: Database info: ... Database version: 16.14
+Initialized JPA EntityManagerFactory for persistence unit 'default'
+Tomcat started on port 8080 (http) with context path '/'
+Started GastosCompartidosApplication in 5.811 seconds (process running for 6.298)
+```
+
+Sin `SQLState: 28P01`, sin excepciones de conexión. Hibernate creó el esquema
+(`usuarios`, `grupos`, `grupo_miembros`, `gastos`, `divisiones_gasto`) con `ddl-auto: update`.
+Además `GET http://localhost:8080/api/grupos` devuelve **401**, que es lo esperado: Tomcat
+sirve y la cadena de seguridad está activa.
+
+El único WARN del log es inofensivo, de la primera creación del esquema:
+`constraint "ukkfsp0s1tflm1cwlj8idhqsad0" of relation "usuarios" does not exist, skipping`.
+
+> ⚠️ **El exit code sigue sin servir, y ahora miente en las dos direcciones.** Ya estaba
+> anotado que `mvn spring-boot:run` da `BUILD SUCCESS` aunque el `ApplicationContext` falle
+> (con DevTools el error ocurre en el hilo `restartedMain` y Maven no lo propaga). Al parar
+> la app a mano pasa lo contrario: sale `[ERROR] Process terminated with exit code: -1` y
+> `BUILD FAILURE` **después** de un arranque perfectamente correcto. Leer el log, siempre.
+
+---
+
+## El problema original: conflicto en el puerto 5433
+
+*(Se conserva el diagnóstico: el conflicto sigue existiendo en la máquina, simplemente este
+proyecto ya no se cruza con él. El PG14 nativo en 5432 sigue siendo un riesgo latente para
+otro proyecto.)*
 
 **Dos servidores PostgreSQL se disputan el 5433, y gana el equivocado.**
 
@@ -77,68 +142,12 @@ Si fuese Docker, aparecería un proceso de Docker Desktop.
 
 ---
 
-## Próximo paso: mover este proyecto a un puerto libre
+## Por qué se movió el proyecto y no los servicios nativos
 
-Se elige mover **el proyecto**, no tocar los servicios nativos: no requiere permisos de
-administrador, es reversible y no rompe otros proyectos que puedan depender de esas
-instalaciones.
+Se optó por mover **el proyecto**: no requiere permisos de administrador, es reversible y no
+rompe otros proyectos que puedan depender de esas instalaciones.
 
-Puerto propuesto: **5435**.
-
-> ⚠️ **Pendiente de verificar antes de aplicar**: que el 5435 esté realmente libre.
-> La comprobación no llegó a ejecutarse.
-> ```powershell
-> Get-NetTCPConnection -LocalPort 5435 -State Listen -ErrorAction SilentlyContinue
-> ```
-> Sin salida = libre. Si estuviera ocupado, probar 5436, 5437…
-
-### 1. `docker-compose.yml`
-
-```diff
-     ports:
--      - "5433:5432"
-+      - "5435:5432"
-```
-
-### 2. `src/main/resources/application.yml`
-
-```diff
-   datasource:
--    url: jdbc:postgresql://localhost:5433/gastos_compartidos
-+    url: jdbc:postgresql://localhost:5435/gastos_compartidos
-```
-
-### 3. Recrear el contenedor y verificar
-
-```bash
-docker compose down
-docker compose up -d
-docker compose ps          # debe salir healthy con 0.0.0.0:5435->5432
-
-# comprobar que ahora SI responde el contenedor y no el nativo
-psql "postgresql://gastos_user:gastos_pass@localhost:5435/gastos_compartidos" -tAc "select split_part(version(),' ',2)"
-# esperado: 16.x  (si sale 12.x, sigue contestando el nativo)
-```
-
-### 4. Levantar la aplicación
-
-```bash
-mvn spring-boot:run
-```
-
-Buscar en el log: `Started GastosCompartidosApplication in X seconds`.
-
-> ⚠️ **No te fíes del exit code.** `mvn spring-boot:run` terminó con `BUILD SUCCESS` y
-> exit 0 aun cuando el `ApplicationContext` falló: con DevTools el error ocurre en el hilo
-> `restartedMain` y Maven no lo propaga. Hay que leer el log, no el código de salida.
-
-`src/test/resources/application-test.yml` **no hay que tocarlo**: los tests de integración
-usan Testcontainers con `@ServiceConnection`, que asigna un puerto aleatorio y es inmune a
-este conflicto.
-
----
-
-## Alternativas descartadas (por si el cambio de puerto no convence)
+### Alternativas descartadas
 
 | Opción | Coste |
 |---|---|
@@ -147,10 +156,10 @@ este conflicto.
 
 ---
 
-## Pendiente después de esto
+## Pendiente: el trabajo real
 
-Una vez arranque la aplicación, el trabajo real es implementar los TODOs, en este orden
-sugerido (de dentro hacia fuera del hexágono):
+Con la aplicación ya arrancando, toca implementar los TODOs, en este orden sugerido
+(de dentro hacia fuera del hexágono):
 
 1. **`Dinero`** — sobre todo `repartirEn(int)`, que debe repartir los céntimos sobrantes sin
    perder ninguno. Es la base de todo lo demás.
