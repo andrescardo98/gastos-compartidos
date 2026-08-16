@@ -1,6 +1,6 @@
 # Notas de trabajo
 
-Última actualización: 2026-08-11
+Última actualización: 2026-08-15
 
 ---
 
@@ -14,7 +14,8 @@ ahora el **5435** y la aplicación arranca y sirve peticiones.
 |---|---|
 | Estructura hexagonal (domain / application / infrastructure) | ✅ completa, con TODOs |
 | `mvn clean test` | ✅ BUILD SUCCESS — 13 tests, 13 skipped (`@Disabled`) |
-| Documentación (`docs/architecture.md`, ADR 0001) | ✅ escrita |
+| Documentación (`docs/architecture.md`, ADR 0001, ADR 0002) | ✅ escrita |
+| Contexto para agentes (`CLAUDE.md`, `AGENTS.md`) | ✅ escrito |
 | Arranque de la aplicación (`mvn spring-boot:run`) | ✅ verificado en 5435 — ver abajo |
 | Lógica de negocio | ⬜ sin implementar, a propósito |
 

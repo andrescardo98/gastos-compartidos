@@ -254,8 +254,8 @@ la tentación aparece, es que falta un puerto.
 Las decisiones de arquitectura se documentan como ADRs en [`docs/decisions/`](decisions/).
 
 - [0001 — Adoptar arquitectura hexagonal / DDD](decisions/0001-arquitectura-hexagonal.md)
+- [0002 — Mantener la autenticación fuera de `application`](decisions/0002-autenticacion-fuera-de-application.md)
 
 Decisiones aún pendientes de ADR, anotadas para no olvidarlas:
 - Heurística greedy en `SimplificadorDeudas` (no garantiza el mínimo absoluto de transferencias).
-- Autenticación resuelta enteramente en `infrastructure`, sin pasar por un caso de uso.
 - Migraciones de esquema: hoy `ddl-auto: update`, insostenible en cuanto haya datos reales.
