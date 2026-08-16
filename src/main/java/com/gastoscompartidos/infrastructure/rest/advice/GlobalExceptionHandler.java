@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
     /**
      * TODO: 422 Unprocessable Entity.
      * El JSON es sintacticamente correcto pero viola una regla de negocio
-     * (las partes no suman el total) — por eso 422 y no 400.
+     * (las partes no suman el total): por eso 422 y no 400.
      */
     @ExceptionHandler(DivisionInvalidaException.class)
     public ResponseEntity<ErrorResponse> manejarDivisionInvalida(DivisionInvalidaException ex) {
