@@ -40,7 +40,7 @@ public class ObtenerBalanceGrupoService implements ObtenerBalanceGrupoUseCase {
      * <ol>
      *   <li>Cargar el grupo; si no existe, GrupoNoEncontradoException.</li>
      *   <li>Verificar que el solicitante es miembro (si no, lanzar la excepcion de
-     *       autorizacion que se decida — ver TODO en GlobalExceptionHandler).</li>
+     *       autorizacion que se decida; ver TODO en GlobalExceptionHandler).</li>
      *   <li>Cargar los gastos con {@code gastoRepository.buscarPorGrupo(...)}.</li>
      *   <li>Delegar el calculo en {@code calculadoraBalances.calcular(miembros, gastos)}.</li>
      *   <li>Resolver los nombres con {@code usuarioRepository.buscarPorIds(...)}

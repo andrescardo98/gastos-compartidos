@@ -13,7 +13,7 @@ import java.util.List;
  *
  * <p><b>Nota sobre el algoritmo:</b> minimizar el numero de transferencias es
  * NP-hard en el caso general (se reduce a particion de conjuntos). La heuristica
- * habitual — greedy: emparejar repetidamente al mayor deudor con el mayor acreedor —
+ * habitual (greedy: emparejar repetidamente al mayor deudor con el mayor acreedor)
  * no siempre da el optimo absoluto, pero es O(n log n) y en grupos reales
  * produce como mucho n-1 transferencias, que es lo que la gente espera.
  * Documentar esta decision en un ADR cuando se implemente.
@@ -34,7 +34,7 @@ public class SimplificadorDeudas {
      * </ol>
      *
      * <p>Precondicion: la suma de los saldos de entrada debe ser cero. Si no lo es,
-     * lanzar DomainException — significa que CalculadoraBalances tiene un bug.
+     * lanzar DomainException: significa que CalculadoraBalances tiene un bug.
      *
      * <p>Postcondicion util para tests: aplicar todos los pagos devueltos a los balances
      * de entrada deja todos los saldos a cero, y el resultado tiene como mucho n-1 pagos.

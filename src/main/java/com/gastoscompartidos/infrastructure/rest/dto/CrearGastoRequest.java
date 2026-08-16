@@ -17,11 +17,11 @@ import java.util.UUID;
  *
  * <p>Separado a proposito de {@code CrearGastoCommand}: aqui viven las anotaciones de
  * Bean Validation (formato/estructura del JSON), y en el command los datos que el caso
- * de uso necesita. La validacion de <b>negocio</b> — que las partes sumen el total —
+ * de uso necesita. La validacion de <b>negocio</b> (que las partes sumen el total)
  * no se hace aqui, sino en el dominio.
  *
  * <p>Nota: {@code grupoId} viene del path y {@code pagadorId} del token JWT,
- * no del body — por eso no aparecen en este DTO. Aceptar el pagador desde el body
+ * no del body: por eso no aparecen en este DTO. Aceptar el pagador desde el body
  * dejaria que un usuario registrase gastos en nombre de otro.
  */
 public record CrearGastoRequest(

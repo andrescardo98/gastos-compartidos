@@ -17,7 +17,7 @@ import java.util.UUID;
  * <p>Es intencionadamente un objeto anemico (getters/setters, sin logica): su unico
  * trabajo es mapear filas. Toda la logica esta en {@code domain.model.Usuario}, y el
  * {@code UsuarioMapper} traduce entre ambos. Duplicar los campos es el precio de que
- * el dominio no dependa de JPA — y lo que permite cambiar el esquema sin tocar reglas
+ * el dominio no dependa de JPA, y lo que permite cambiar el esquema sin tocar reglas
  * de negocio.
  */
 @Entity

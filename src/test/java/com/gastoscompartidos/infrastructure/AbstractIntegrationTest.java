@@ -11,7 +11,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * Base de los tests de integracion: levanta un PostgreSQL real en Docker.
  *
  * <p>Solo los adaptadores de infraestructura deberian heredar de aqui. Dominio y
- * casos de uso se prueban sin contexto de Spring — si un test de negocio necesita
+ * casos de uso se prueban sin contexto de Spring: si un test de negocio necesita
  * esta clase, algo se ha filtrado fuera del hexagono.
  *
  * <p>Detalles:
@@ -25,7 +25,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  *       para no probar contra un motor distinto del de desarrollo.</li>
  * </ul>
  *
- * <p>Requiere Docker corriendo. Si no lo esta, estos tests fallan al arrancar —
+ * <p>Requiere Docker corriendo. Si no lo esta, estos tests fallan al arrancar:
  * es esperado.
  */
 @SpringBootTest
@@ -43,6 +43,6 @@ public abstract class AbstractIntegrationTest {
                     .withReuse(true);
 
     // TODO: al implementar los adaptadores, crear tests que hereden de esta clase, p.ej.
-    //       GastoRepositoryAdapterIT — guardar un Gasto y releerlo comprobando que las
+    //       GastoRepositoryAdapterIT: guardar un Gasto y releerlo comprobando que las
     //       divisiones vuelven completas y que los BigDecimal conservan la escala.
 }

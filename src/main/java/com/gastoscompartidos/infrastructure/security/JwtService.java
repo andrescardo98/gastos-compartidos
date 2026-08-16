@@ -9,7 +9,7 @@ import java.util.UUID;
  *
  * <p>Vive entera en infrastructure: el dominio no sabe que existen los tokens. Si algun
  * caso de uso necesitase saber "quien esta autenticado", recibe el {@code UUID} del
- * usuario como parametro del command/query — nunca lee el SecurityContext.
+ * usuario como parametro del command/query; nunca lee el SecurityContext.
  */
 @Service
 public class JwtService {

@@ -32,7 +32,7 @@ public class AuthController {
      *   <li>Autenticar email + password con el AuthenticationManager.</li>
      *   <li>Si es valido, generar el JWT con JwtService (subject = id del usuario).</li>
      *   <li>Devolver 200 con TokenResponse.bearer(...).</li>
-     *   <li>Si no, 401 — sin revelar si fallo el email o la contrasena.</li>
+     *   <li>Si no, 401: sin revelar si fallo el email o la contrasena.</li>
      * </ol>
      */
     @PostMapping("/login")

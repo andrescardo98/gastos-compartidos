@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
  *
  * <p>JUnit 5 puro: sin {@code @SpringBootTest}, sin contexto, sin base de datos.
  * Que estos tests puedan ser asi es exactamente la ventaja que compra la arquitectura
- * hexagonal — si algun dia hiciera falta levantar Spring para probar una regla de
+ * hexagonal: si algun dia hiciera falta levantar Spring para probar una regla de
  * negocio, es senal de que la regla se ha escapado del dominio.
  *
  * <p>Todo {@code @Disabled} hasta que exista la implementacion, para que el build

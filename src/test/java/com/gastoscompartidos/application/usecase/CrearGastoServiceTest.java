@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * test no necesita contexto de Spring ni base de datos.
  *
  * <p>Que se prueba aqui: la orquestacion (que se carga el grupo, que se rechaza si no
- * existe, que se persiste). El calculo del reparto se prueba en el dominio, no aqui —
+ * existe, que se persiste). El calculo del reparto se prueba en el dominio, no aqui:
  * duplicarlo solo produce tests fragiles.
  */
 @ExtendWith(MockitoExtension.class)
