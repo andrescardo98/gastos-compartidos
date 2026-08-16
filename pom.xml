@@ -150,6 +150,27 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <!--
+                Separacion estandar de Maven:
+                  - surefire  -> fase "test",   clases *Test   (unitarios, sin Docker)
+                  - failsafe  -> fase "verify", clases *IT     (integracion, Testcontainers)
+                Sin esto las clases *IT no las ejecutaba NADIE: los includes por defecto de
+                surefire no casan con el sufijo IT, y el proyecto no declaraba failsafe.
+                El goal "verify" es imprescindible: sin el, failsafe ejecuta los tests pero
+                no falla el build cuando alguno rompe.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

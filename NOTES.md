@@ -1,6 +1,6 @@
 # Notas de trabajo
 
-Última actualización: 2026-08-15
+Última actualización: 2026-08-16
 
 ---
 
@@ -18,6 +18,62 @@ ahora el **5435** y la aplicación arranca y sirve peticiones.
 | Contexto para agentes (`CLAUDE.md`, `AGENTS.md`) | ✅ escrito |
 | Arranque de la aplicación (`mvn spring-boot:run`) | ✅ verificado en 5435 — ver abajo |
 | Lógica de negocio | ⬜ sin implementar, a propósito |
+
+---
+
+## 2026-08-16 — Skill `nueva-entidad-dominio`, `Liquidacion` y failsafe
+
+### Las skills nuevas no se pueden invocar hasta reiniciar la sesión
+
+El registro de skills se carga **al arrancar** Claude Code. Una skill recién creada en
+`.claude/skills/` existe en disco pero el tool `Skill` responde `Unknown skill` en la misma
+sesión en que se escribió; hay que **reiniciar Claude Code** para poder invocarla como
+`/nueva-entidad-dominio`. Mientras tanto sigue siendo utilizable a mano: el `SKILL.md` es
+un procedimiento legible, no un binario.
+
+Pasó exactamente eso al estrenar `nueva-entidad-dominio`: se creó y se usó en la misma
+sesión, siguiendo el fichero paso a paso en lugar del tool.
+
+### `Liquidacion` existe, pero **no cuenta todavía en los balances**
+
+Añadida la entidad completa (dominio → puerto → JPA → mapper → repositorio → adaptador →
+`...IT`), toda con `TODO`, más `LiquidacionInvalidaException` y su handler 422.
+
+⚠️ **`CalculadoraBalances` sigue recorriendo solo los gastos.** Un pago ya realizado entre
+dos miembros no reduce la deuda que se muestra, así que hoy el balance neto está incompleto
+por diseño. Incorporarlo cambia la firma de `CalculadoraBalances.calcular(...)` para que
+reciba también las liquidaciones del grupo, y obliga a revisar el test de propiedad
+"la suma de saldos es exactamente cero" —que debe seguir cumpliéndose *después* de restar
+los pagos—. Pendiente para cuando toque implementar esa lógica: es la **Fase 4** de la
+planificación, que en la lista *Pendiente: el trabajo real* de más abajo es el **punto 3**
+(`CalculadoraBalances`).
+
+### Ningún test `*IT` se había ejecutado nunca — resuelto en este commit
+
+El `pom.xml` no declaraba `maven-failsafe-plugin`, y los *includes* por defecto de surefire
+(`*Test`, `Test*`, `*Tests`, `*TestCase`) **no casan con el sufijo `IT`**. Consecuencia: la
+convención `...IT` estaba documentada y usada, pero esas clases no las ejecutaba ningún
+comando de Maven. No fallaban: simplemente no existían para el build.
+
+Ya está cableado el reparto estándar — surefire en `test` (unitarios), failsafe en `verify`
+(integración). Comprobado con `mvn -o verify`:
+
+```
+--- surefire:3.5.3:test ---     Tests run: 13, Skipped: 13
+--- failsafe:3.5.3:integration-test ---
+Running ...LiquidacionRepositoryAdapterIT
+                                Tests run: 4, Skipped: 4
+--- failsafe:3.5.3:verify ---   BUILD SUCCESS
+```
+
+Los 4 aparecen como *skipped* explícitos por el `@Disabled` de clase, no ignorados. Ese
+`@Disabled` es intencionado: sin él, Testcontainers intentaría levantar Docker en cada
+`mvn verify`.
+
+> Aviso para la próxima vez: `mvn -o verify` falla en un repo local frío, pero **no por los
+> tests** — revienta antes, en `package`, porque `maven-jar-plugin` y sus dependencias nunca
+> se habían descargado (`mvn test` no llega a esa fase). Un `mvn verify` online una sola vez
+> lo arregla y a partir de ahí el offline funciona.
 
 ---
 

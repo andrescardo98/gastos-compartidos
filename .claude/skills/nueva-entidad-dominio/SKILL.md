@@ -282,9 +282,11 @@ revisión manual.
 - [ ] Ninguna firma del puerto menciona `Page`, `Pageable`, `Sort`, `Example` ni
       `...JpaEntity`. Comprobación rápida:
       ```
-      grep -rn "Page\|Pageable\|Sort\|JpaEntity\|springframework" src/main/java/com/gastoscompartidos/application/port/out/
+      grep -rn "Page\|Pageable\|Sort\|JpaEntity\|springframework" src/main/java/com/gastoscompartidos/application/port/out/ | grep -vE ':[0-9]+:\s*(\*|//|/\*)'
       ```
-      Debe salir vacío.
+      Debe salir vacío. El segundo `grep` descarta las líneas de javadoc y comentario: sin
+      él, los puertos que **advierten** de estos tipos en su documentación —como hace
+      `UsuarioRepositoryPort.java:17-18`— salen marcados como si los usaran.
 - [ ] El puerto solo devuelve tipos de dominio, `Optional`, `List` y primitivos.
 - [ ] Si hay hijos, el javadoc del método de lectura advierte del N+1.
 

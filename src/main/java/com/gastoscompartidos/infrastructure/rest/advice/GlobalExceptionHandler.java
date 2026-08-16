@@ -3,6 +3,7 @@ package com.gastoscompartidos.infrastructure.rest.advice;
 import com.gastoscompartidos.domain.exception.DivisionInvalidaException;
 import com.gastoscompartidos.domain.exception.DomainException;
 import com.gastoscompartidos.domain.exception.GrupoNoEncontradoException;
+import com.gastoscompartidos.domain.exception.LiquidacionInvalidaException;
 import com.gastoscompartidos.domain.exception.UsuarioNoEncontradoException;
 import com.gastoscompartidos.infrastructure.rest.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,15 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DivisionInvalidaException.class)
     public ResponseEntity<ErrorResponse> manejarDivisionInvalida(DivisionInvalidaException ex) {
+        throw new UnsupportedOperationException("TODO: implementar");
+    }
+
+    /**
+     * TODO: 422 Unprocessable Entity, mismo criterio que la division invalida.
+     * Casos tipicos: pagador y receptor coinciden, o el importe no es positivo.
+     */
+    @ExceptionHandler(LiquidacionInvalidaException.class)
+    public ResponseEntity<ErrorResponse> manejarLiquidacionInvalida(LiquidacionInvalidaException ex) {
         throw new UnsupportedOperationException("TODO: implementar");
     }
 
