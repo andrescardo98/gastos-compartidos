@@ -250,3 +250,7 @@ Otros cabos sueltos anotados en `docs/architecture.md`:
 - Falta un test de **ArchUnit** que falle si `domain` importa algo fuera de `java.*`.
 - `GrupoController` está sin endpoints a propósito: primero hay que crear sus puertos de
   entrada en `application/port/in`.
+- `AuthController.java:20` tiene un comentario que dice "decisión pendiente en
+  `docs/decisions/`" pero el [ADR 0002](docs/decisions/0002-autenticacion-fuera-de-application.md)
+  ya existe y resuelve exactamente eso — el comentario quedó obsoleto y hay que actualizarlo
+  para que apunte directamente al ADR 0002.
