@@ -16,7 +16,13 @@ import java.util.List;
  * habitual (greedy: emparejar repetidamente al mayor deudor con el mayor acreedor)
  * no siempre da el optimo absoluto, pero es O(n log n) y en grupos reales
  * produce como mucho n-1 transferencias, que es lo que la gente espera.
- * Documentar esta decision en un ADR cuando se implemente.
+ * Decision aceptada y argumentada en el ADR 0003
+ * (docs/decisions/0003-reglas-calculo-balances-y-reparto.md).
+ *
+ * <p><b>Desempate obligatorio:</b> a igualdad de importe gana el UUID menor
+ * ({@code UUID.compareTo}), tanto en deudores como en acreedores. Sin esa regla el
+ * resultado dependeria del orden de llegada de los datos y los tests serian
+ * intermitentes.
  */
 public class SimplificadorDeudas {
 

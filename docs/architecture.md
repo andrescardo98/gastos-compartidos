@@ -255,7 +255,7 @@ Las decisiones de arquitectura se documentan como ADRs en [`docs/decisions/`](de
 
 - [0001 — Adoptar arquitectura hexagonal / DDD](decisions/0001-arquitectura-hexagonal.md)
 - [0002 — Mantener la autenticación fuera de `application`](decisions/0002-autenticacion-fuera-de-application.md)
+- [0003 — Reglas de cálculo de balances y reparto de importes](decisions/0003-reglas-calculo-balances-y-reparto.md)
 
 Decisiones aún pendientes de ADR, anotadas para no olvidarlas:
-- Heurística greedy en `SimplificadorDeudas` (no garantiza el mínimo absoluto de transferencias).
 - Migraciones de esquema: hoy `ddl-auto: update`, insostenible en cuanto haya datos reales.

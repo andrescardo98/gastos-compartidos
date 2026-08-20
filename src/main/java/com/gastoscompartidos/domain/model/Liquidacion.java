@@ -18,9 +18,11 @@ import java.util.UUID;
  * <p>Aggregate aparte de {@link Grupo} y de {@link Gasto}: los referencia por id, igual que
  * hace Gasto, para no cargar el grupo entero al anotar un pago.
  *
- * <p>Nota de alcance: esta entidad todavia NO entra en el calculo de balances.
- * {@code CalculadoraBalances} solo recorre gastos; incorporar las liquidaciones (restarlas
- * de la deuda neta) es un cambio aparte que toca su firma y sus tests.
+ * <p>Nota de alcance: el ADR 0003 ya fija como entra esta entidad en el calculo de balances
+ * (suma al pagador, resta al receptor) y el cambio de firma que eso exige en
+ * {@code CalculadoraBalances}. Lo que queda pendiente es la implementacion, no la decision:
+ * hoy {@code CalculadoraBalances} sigue recorriendo solo gastos, asi que el balance neto
+ * esta incompleto a proposito hasta la Fase 4.
  *
  * <p>Identidad por {@code id}: dos pagos del mismo importe entre las mismas personas el
  * mismo dia son liquidaciones distintas.

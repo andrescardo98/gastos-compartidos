@@ -34,19 +34,26 @@ un procedimiento legible, no un binario.
 Pasó exactamente eso al estrenar `nueva-entidad-dominio`: se creó y se usó en la misma
 sesión, siguiendo el fichero paso a paso en lugar del tool.
 
-### `Liquidacion` existe, pero **no cuenta todavía en los balances**
+### `Liquidacion` existe, pero **no cuenta todavía en los balances** (decidido, sin implementar)
 
 Añadida la entidad completa (dominio → puerto → JPA → mapper → repositorio → adaptador →
 `...IT`), toda con `TODO`, más `LiquidacionInvalidaException` y su handler 422.
 
 ⚠️ **`CalculadoraBalances` sigue recorriendo solo los gastos.** Un pago ya realizado entre
 dos miembros no reduce la deuda que se muestra, así que hoy el balance neto está incompleto
-por diseño. Incorporarlo cambia la firma de `CalculadoraBalances.calcular(...)` para que
-reciba también las liquidaciones del grupo, y obliga a revisar el test de propiedad
-"la suma de saldos es exactamente cero" —que debe seguir cumpliéndose *después* de restar
-los pagos—. Pendiente para cuando toque implementar esa lógica: es la **Fase 4** de la
-planificación, que en la lista *Pendiente: el trabajo real* de más abajo es el **punto 3**
-(`CalculadoraBalances`).
+por diseño.
+
+**La decisión ya no está pendiente: la fija el
+[ADR 0003](docs/decisions/0003-reglas-calculo-balances-y-reparto.md).** Una liquidación suma
+al pagador y resta al receptor, y `CalculadoraBalances.calcular(...)` pasa a recibir también
+las liquidaciones del grupo y su moneda. Lo que queda pendiente es **escribirlo**: es la
+**Fase 4** de la planificación, que en la lista *Pendiente: el trabajo real* de más abajo es
+el **punto 3** (`CalculadoraBalances`).
+
+Trampa que el ADR 0003 deja anotada y conviene no olvidar aquí: el test de propiedad
+"la suma de saldos es exactamente cero" **no detecta** que se olviden las liquidaciones,
+porque cada una suma a uno lo mismo que resta al otro. Hace falta además un caso concreto
+con liquidación cuyo resultado esperado difiera del mismo caso sin ella.
 
 ### Ningún test `*IT` se había ejecutado nunca — resuelto en este commit
 
@@ -218,11 +225,19 @@ rompe otros proyectos que puedan depender de esas instalaciones.
 Con la aplicación ya arrancando, toca implementar los TODOs, en este orden sugerido
 (de dentro hacia fuera del hexágono):
 
+Las reglas de negocio de los puntos 1, 3 y 4 están fijadas en el
+[ADR 0003](docs/decisions/0003-reglas-calculo-balances-y-reparto.md), incluidas las tablas de
+casos borde a cubrir. Escribir los tests contra el ADR, no contra la implementación.
+
 1. **`Dinero`** — sobre todo `repartirEn(int)`, que debe repartir los céntimos sobrantes sin
-   perder ninguno. Es la base de todo lo demás.
+   perder ninguno. Es la base de todo lo demás. Regla: parte hacia abajo y el resto de uno en
+   uno a los primeros de la lista (ADR 0003, regla 1).
 2. **`Gasto`** — las factories y la invariante de que las divisiones suman el total.
 3. **`CalculadoraBalances`** — con el test de propiedad "la suma de saldos es exactamente cero".
-4. **`SimplificadorDeudas`** — heurística greedy; pendiente de ADR propio.
+   Incluye ya las liquidaciones y la moneda del grupo (ADR 0003, regla 2), lo que cambia su
+   firma actual.
+4. **`SimplificadorDeudas`** — heurística greedy, con desempate por `UUID` para que el
+   resultado sea determinista (ADR 0003, regla 3).
 5. Mappers y adaptadores de persistencia (tests con `AbstractIntegrationTest`).
 6. Casos de uso y controllers.
 7. `JwtService` y `JwtAuthenticationFilter` — hoy el filtro es un **pass-through** que no
